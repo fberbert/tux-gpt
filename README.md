@@ -18,7 +18,7 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
 
 1. **Install**:
    ```bash
-   git clone https://github.com/<username>/terminal-gpt.git
+   git clone https://github.com/fberbert/terminal-gpt.git
    cd terminal-gpt
    pip install .
    ```
@@ -95,4 +95,44 @@ You can configure the default model or terminal spinner settings by editing the 
 
 MIT © 2025 terminal-gpt contributors
 
+
+
+---
+
+## Configuration File (~/.terminal-gpt/config.json)
+
+You can customize the behavior of **terminal-gpt** by creating a JSON configuration file at:
+
+
+
+Example config file to set the model:
+
+
+
+The default model is .
+
+# Model Compatibility
+
+**Important:** The model you choose must support web search capability.
+Currently, only the following models support the web search tool:
+
+- 
+- 
+
+For more details, see the official OpenAI documentation on web search tools and limitations:
+
+https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#limitations
+
+---
+
+---
+
+## Author
+
+**Fábio Berbert de Paula**
+
+- Email: <fberbert@gmail.com>
+- Website: [https://fabio.automatizando.dev](https://fabio.automatizando.dev)
+- Founder of [www.vivaolinux.com.br](https://www.vivaolinux.com.br)
+- Over 25 years of experience as a developer
 
