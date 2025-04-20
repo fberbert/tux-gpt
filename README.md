@@ -21,8 +21,6 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
    git clone https://github.com/<username>/terminal-gpt.git
    cd terminal-gpt
    pip install .
-   ```bash
-   pip install terminal-gpt
    ```
 
 2. **Get your OpenAI API key**:
