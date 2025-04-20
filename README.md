@@ -77,8 +77,7 @@ terminal-gpt
 You can configure the default model or terminal spinner settings by editing the configuration file at `~/.terminal-gpt/config.json`. Example:
 ```json
 {
-  "model": "gpt-4o-mini",
-  "spinner": true
+  "model": "gpt-4o-mini"
 }
 ```
 
@@ -101,29 +100,29 @@ MIT © 2025 terminal-gpt contributors
 
 ## Configuration File (~/.terminal-gpt/config.json)
 
-You can customize the behavior of **terminal-gpt** by creating a JSON configuration file at:
-
-
+In the first run, **terminal-gpt** will create a configuration file at `~/.terminal-gpt/config.json`. This file contains settings for the default model. You can customize the behavior of **terminal-gpt** by editing the configuration file located at `~/.terminal-gpt/config.json`. This file allows you to set the default model and other preferences.
 
 Example config file to set the model:
 
+```json
+{
+  "model": "gpt-4.1-mini"
+}
+```
 
-
-The default model is .
+The default model is gtp-4.1-mini.
 
 # Model Compatibility
 
 **Important:** The model you choose must support web search capability.
 Currently, only the following models support the web search tool:
 
-- 
-- 
+- gpt-4.1
+- gpt-4.1-mini
 
 For more details, see the official OpenAI documentation on web search tools and limitations:
 
 https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#limitations
-
----
 
 ---
 

@@ -4,7 +4,15 @@ import sys
 import time
 import threading
 import itertools
+import json
 from openai import OpenAI
+from rich.console import Console
+from rich.markdown import Markdown
+
+# Paths for configuration
+CONFIG_DIR = os.path.expanduser('~/.terminal-gpt')
+CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
+
 
 def spinner_task(stop_event):
     for c in itertools.cycle(['|', '/', '-', '\\']):
@@ -16,20 +24,60 @@ def spinner_task(stop_event):
     sys.stdout.write('\r' + ' ' * 20 + '\r')
     sys.stdout.flush()
 
+
+def write_default_config():
+    if not os.path.isdir(CONFIG_DIR):
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+    default_config = {"model": "gpt-4.1-mini"}
+    with open(CONFIG_PATH, 'w') as f:
+        json.dump(default_config, f, indent=2)
+
+
+def load_config():
+    if not os.path.exists(CONFIG_PATH):
+        write_default_config()
+    try:
+        with open(CONFIG_PATH, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Warning: failed to load config {CONFIG_PATH}: {e}")
+        return {"model": "gpt-4.1-mini"}
+
+
 def main():
+    console = Console()
+
+    welcome_message = """\
+
+                     Welcome to the terminal-gpt!
+          This is a terminal-based interactive tool using GPT.
+      Please, visit us at https://github.com/fberbert/terminal-gpt
+                        Type 'exit' to quit.
+    """
+
+    console.print(f"[bold blue]{welcome_message}[/bold blue]", justify="left")
+
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        print("Defina a variável OPENAI_API_KEY.")
+        print("Please set your OPENAI_API_KEY environment variable.")
         exit(1)
 
-    client = OpenAI(api_key=api_key)
+    config = load_config()
+    model = config.get("model", "gpt-4.1-mini")
 
+    client = OpenAI(api_key=api_key)
+    console = Console()
+
+    # System prompt: allow Markdown output
     history = [
         {
             "role": "system",
             "content": (
-                "You are a virtual assistant that can search the web. You are running in a Linux terminal. "
-                "Always return plain text only, without Markdown formatting. The output should be suitable for direct display in a Linux terminal."
+                "You are a virtual assistant that can search the web. "
+                "Always search the web when user asks for something data related. "
+                "For example: 'What is the weather today?' or 'Which date is today?'. "
+                "You are running in a Linux terminal. "
+                "Return responses formatted in Markdown so they can be rendered in the terminal using rich."
             )
         }
     ]
@@ -38,35 +86,38 @@ def main():
         try:
             user_input = input("> ")
         except (EOFError, KeyboardInterrupt):
-            print("\nSaindo.")
+            console.print("\nExiting.")
             break
 
         history.append({"role": "user", "content": user_input})
 
-        # inicia spinner em thread separada
+        # start spinner
         stop_event = threading.Event()
         spinner = threading.Thread(target=spinner_task, args=(stop_event,), daemon=True)
         spinner.start()
 
-        # chamada à Responses API
+        # call to Responses API with web_search tool
         resp = client.responses.create(
-            model="gpt-4.1-mini",
+            model=model,
             input=history,
-            tools=[
-                {"type": "web_search_preview"}
-            ]
+            tools=[{"type": "web_search_preview"}]
         )
 
-        # para o spinner
+        # stop spinner
         stop_event.set()
         spinner.join()
 
+        # get and render Markdown answer
         answer = resp.output_text.strip()
-        print(f"\n\033[0;32m{answer}\033[0m\n")
+        console.print()
+        console.print(Markdown(answer))
+        console.print()
 
         history.append({"role": "assistant", "content": answer})
         if len(history) > 20:
             history = history[-20:]
 
+
 if __name__ == "__main__":
     main()
+
