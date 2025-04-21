@@ -54,7 +54,7 @@ tux-gpt
 ```
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/main/assets/img/sample.gif" alt="Demonstração de uso" width="600">
+  <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/master/assets/img/sample.gif" alt="Demonstração de uso" width="600">
 </div>
 
 
