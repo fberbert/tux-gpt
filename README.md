@@ -39,6 +39,11 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
      [Environment]::SetEnvironmentVariable('OPENAI_API_KEY', '<your_api_key>', 'User')
      ```
 
+  *Note:* On first run, terminal-gpt will create the directory `~/.terminal-gpt/` containing:
+  - `config.json`: CLI configuration (e.g., default model);
+  - `history.json`: persistence of the last 20 messages (user + assistant);
+  - `input_history`: command history for navigation with ↑/↓ arrow keys.
+
 ---
 
 ## Usage
@@ -69,6 +74,20 @@ terminal-gpt
   ```
   > Summarize the top result for "machine learning trends 2025"
   ```
+
+---
+
+## Memory & Command History
+
+terminal-gpt now persists your conversation and command history locally in the `~/.terminal-gpt/` directory. The files created are:
+- `config.json`: CLI configuration, such as the default model.
+- `history.json`: stores the last 20 messages (user + assistant) to maintain context between sessions and limit token usage.
+- `input_history`: command history used by `readline` for navigation with ↑/↓ arrow keys.
+
+Features:
+- On startup, the conversation history is automatically reloaded from `history.json`, limited to the last 20 messages to prevent token overload.
+- You can navigate previous commands using the ↑ and ↓ arrow keys at the prompt.
+- To reset the conversation or command history, simply remove the corresponding files in `~/.terminal-gpt/`.
 
 ---
 
@@ -110,7 +129,7 @@ Example config file to set the model:
 }
 ```
 
-The default model is gtp-4.1-mini.
+The default model is gpt-4.1-mini.
 
 # Model Compatibility
 

@@ -8,6 +8,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     python_requires='>=3.7',
+    install_requires=[
+        'openai>=0.27.0',
+        'rich>=10.0.0'
+    ],
 )
 entry_points={
     'console_scripts': [

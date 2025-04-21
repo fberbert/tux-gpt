@@ -1,28 +1,25 @@
 #!/usr/bin/env python3
 import os
 import sys
-import time
-import threading
-import itertools
 import json
+import atexit
+try:
+    import readline
+except ImportError:
+    readline = None
 from openai import OpenAI
 from rich.console import Console
 from rich.markdown import Markdown
 
-# Paths for configuration
+ # Paths for configuration
 CONFIG_DIR = os.path.expanduser('~/.terminal-gpt')
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
+# Paths for chat history and input history
+HISTORY_PATH = os.path.join(CONFIG_DIR, 'history.json')
+INPUT_HISTORY_PATH = os.path.join(CONFIG_DIR, 'input_history')
+# maximum number of messages to keep in memory and persist
+MAX_HISTORY = 20
 
-
-def spinner_task(stop_event):
-    for c in itertools.cycle(['|', '/', '-', '\\']):
-        if stop_event.is_set():
-            break
-        sys.stdout.write(f'\r{c}')
-        sys.stdout.flush()
-        time.sleep(0.1)
-    sys.stdout.write('\r' + ' ' * 20 + '\r')
-    sys.stdout.flush()
 
 
 def write_default_config():
@@ -42,10 +39,38 @@ def load_config():
     except Exception as e:
         print(f"Warning: failed to load config {CONFIG_PATH}: {e}")
         return {"model": "gpt-4.1-mini"}
+    
+def load_history():
+    """Load persisted conversation history (last MAX_HISTORY messages)."""
+    if not os.path.exists(HISTORY_PATH):
+        return []
+    try:
+        with open(HISTORY_PATH, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Warning: failed to load history {HISTORY_PATH}: {e}")
+        return []
+
+def save_history(history):
+    """Persist conversation history, keeping only last MAX_HISTORY messages."""
+    try:
+        with open(HISTORY_PATH, 'w') as f:
+            json.dump(history, f, indent=2)
+    except Exception as e:
+        print(f"Warning: failed to save history {HISTORY_PATH}: {e}")
 
 
 def main():
     console = Console()
+    # ensure config directory exists
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    # setup input line history if available
+    if readline:
+        try:
+            readline.read_history_file(INPUT_HISTORY_PATH)
+        except Exception:
+            pass
+        atexit.register(lambda: readline.write_history_file(INPUT_HISTORY_PATH))
 
     welcome_message = """\
 
@@ -59,8 +84,8 @@ def main():
 
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        print("Please set your OPENAI_API_KEY environment variable.")
-        exit(1)
+        console.print("[red]Please set your OPENAI_API_KEY environment variable.[/red]")
+        sys.exit(1)
 
     config = load_config()
     model = config.get("model", "gpt-4.1-mini")
@@ -69,53 +94,55 @@ def main():
     console = Console()
 
     # System prompt: allow Markdown output
-    history = [
-        {
-            "role": "system",
-            "content": (
-                "You are a virtual assistant that can search the web. "
-                "Always search the web when user asks for something data related. "
-                "For example: 'What is the weather today?' or 'Which date is today?'. "
-                "You are running in a Linux terminal. "
-                "Return responses formatted in Markdown so they can be rendered in the terminal using rich."
-            )
-        }
-    ]
+    system_msg = {
+        "role": "system",
+        "content": (
+            "You are a virtual assistant that can search the web. "
+            "Always search the web when user asks for something data related. "
+            "For example: 'What is the weather today?' or 'Which date is today?'. "
+            "You are running in a Linux terminal. "
+            "Return responses formatted in Markdown so they can be rendered in the terminal using rich."
+        )
+    }
+    # load persisted conversation (last MAX_HISTORY messages)
+    persisted = load_history()
 
+    # main REPL loop
     while True:
         try:
             user_input = input("> ")
         except (EOFError, KeyboardInterrupt):
             console.print("\nExiting.")
             break
-
-        history.append({"role": "user", "content": user_input})
-
-        # start spinner
-        stop_event = threading.Event()
-        spinner = threading.Thread(target=spinner_task, args=(stop_event,), daemon=True)
-        spinner.start()
-
-        # call to Responses API with web_search tool
-        resp = client.responses.create(
-            model=model,
-            input=history,
-            tools=[{"type": "web_search_preview"}]
-        )
-
-        # stop spinner
-        stop_event.set()
-        spinner.join()
-
-        # get and render Markdown answer
+        # handle exit commands without sending to model
+        if user_input.strip().lower() in ("exit", "quit"):
+            console.print("Exiting.")
+            break
+        # build messages for API: system + last persisted + current user
+        call_history = [system_msg] + persisted + [{"role": "user", "content": user_input}]
+        # call API with rich spinner/status
+        try:
+            with console.status("[bold green]", spinner="dots"):
+                resp = client.responses.create(
+                    model=model,
+                    input=call_history,
+                    tools=[{"type": "web_search_preview"}]
+                )
+        except Exception as e:
+            console.print(f"[red]Error calling OpenAI API: {e}[/red]")
+            continue
+        # render and persist response
         answer = resp.output_text.strip()
         console.print()
         console.print(Markdown(answer))
         console.print()
-
-        history.append({"role": "assistant", "content": answer})
-        if len(history) > 20:
-            history = history[-20:]
+        # update persisted history and save
+        persisted.append({"role": "user", "content": user_input})
+        persisted.append({"role": "assistant", "content": answer})
+        # keep only last MAX_HISTORY messages
+        if len(persisted) > MAX_HISTORY:
+            persisted = persisted[-MAX_HISTORY:]
+        save_history(persisted)
 
 
 if __name__ == "__main__":
