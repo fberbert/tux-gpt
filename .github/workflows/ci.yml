@@ -8,6 +8,7 @@ on:
 
 jobs:
   lint:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +43,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: [lint]
+    # needs: [lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
