@@ -148,7 +148,7 @@ def main() -> None:
             with console.status("[bold green]", spinner="dots"):
                 resp = client.responses.create(
                     model=model,
-                    input=call_history, # type: ignore[arg-type]
+                    input=call_history,  # type: ignore[arg-type]
                     tools=[{"type": "web_search_preview"}]
                 )
         except Exception as e:
