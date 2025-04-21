@@ -53,7 +53,7 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
 terminal-gpt
 ```
 
-![Demonstração de uso](assets/img/sample.gif)
+<img src="assets/img/sample.gif" alt="Demonstração de uso" width="600">
 
 ### Example commands
 
