@@ -53,6 +53,8 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
 terminal-gpt
 ```
 
+![Demonstração de uso](assets/img/sample.gif)
+
 ### Example commands
 
 - **Search the web for current news:**
