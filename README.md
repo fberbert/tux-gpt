@@ -17,6 +17,11 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
 ## Setup and Configuration
 
 1. **Install**:
+   From PyPI:
+   ```bash
+   pip install tux-gpt
+   ```
+   From source:
    ```bash
    git clone https://github.com/fberbert/tux-gpt.git
    cd tux-gpt
