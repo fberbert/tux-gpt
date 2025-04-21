@@ -5,7 +5,10 @@ import json
 import atexit
 import platform
 from pathlib import Path
-from typing import Any, Dict, List
+from types import ModuleType
+from typing import Any, Dict, List, Optional
+
+readline: Optional[ModuleType]
 try:
     import readline
 except ImportError:
@@ -145,7 +148,7 @@ def main() -> None:
             with console.status("[bold green]", spinner="dots"):
                 resp = client.responses.create(
                     model=model,
-                    input=call_history,
+                    input=call_history, # type: ignore[arg-type]
                     tools=[{"type": "web_search_preview"}]
                 )
         except Exception as e:

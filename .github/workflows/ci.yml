@@ -22,7 +22,7 @@ jobs:
       - name: Lint with flake8
         run: flake8 .
       - name: Type check with mypy
-        run: mypy terminal_gpt
+        run: mypy tux_gpt
 
   test:
     runs-on: ubuntu-latest
