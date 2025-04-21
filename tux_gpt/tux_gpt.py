@@ -16,12 +16,12 @@ from rich.markdown import Markdown
 
  
 def get_config_dir() -> Path:
-    """Return the configuration directory for terminal-gpt based on OS."""
+    """Return the configuration directory for tux-gpt based on OS."""
     if os.name == "nt":
         base = Path(os.getenv("APPDATA", Path.home() / "AppData" / "Roaming"))
     else:
         base = Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-    return base / "terminal-gpt"
+    return base / "tux-gpt"
 
 CONFIG_DIR: Path = get_config_dir()
 CONFIG_PATH: Path = CONFIG_DIR / "config.json"
@@ -72,7 +72,7 @@ def save_history(history: List[Dict[str, str]]) -> None:
 
 
 def main() -> None:
-    """Main entry point for terminal-gpt CLI."""
+    """Main entry point for tux-gpt CLI."""
     console = Console()
     # ensure config directory exists
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
@@ -86,10 +86,10 @@ def main() -> None:
 
     welcome_message = """\
 
-                     Welcome to the terminal-gpt!
+                     Welcome to the tux-gpt!
           This is a terminal-based interactive tool using GPT.
-      Please, visit us at https://github.com/fberbert/terminal-gpt
-                        Type 'exit' to quit.
+         Please, visit us at https://github.com/fberbert/tux-gpt
+                      Type 'exit' to quit.
     """
 
     console.print(f"[bold blue]{welcome_message}[/bold blue]", justify="left")

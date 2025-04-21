@@ -1,8 +1,8 @@
-## terminal-gpt
+## tux-gpt
 
-`terminal-gpt` is an interactive command-line tool that leverages GPT-based language models to provide intelligent, conversational assistance directly within your terminal. It enables on-the-fly code generation, debugging help, technical explanations, and more—all without leaving the command-line environment.
+`tux-gpt` is an interactive command-line tool that leverages GPT-based language models to provide intelligent, conversational assistance directly within your terminal. It enables on-the-fly code generation, debugging help, technical explanations, and more—all without leaving the command-line environment.
 
-Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workflows by integrating AI assistance seamlessly into terminal sessions, making complex tasks easier and faster to accomplish via intuitive, context-aware command-line interactions.
+Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows by integrating AI assistance seamlessly into terminal sessions, making complex tasks easier and faster to accomplish via intuitive, context-aware command-line interactions.
 
 ---
 
@@ -18,8 +18,8 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
 
 1. **Install**:
    ```bash
-   git clone https://github.com/fberbert/terminal-gpt.git
-   cd terminal-gpt
+   git clone https://github.com/fberbert/tux-gpt.git
+   cd tux-gpt
    pip install .
    ```
 
@@ -39,7 +39,7 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
      [Environment]::SetEnvironmentVariable('OPENAI_API_KEY', '<your_api_key>', 'User')
      ```
 
-  *Note:* On first run, terminal-gpt will create the directory `~/.terminal-gpt/` containing:
+  *Note:* On first run, tux-gpt will create the directory `~/.tux-gpt/` containing:
   - `config.json`: CLI configuration (e.g., default model);
   - `history.json`: persistence of the last 20 messages (user + assistant);
   - `input_history`: command history for navigation with ↑/↓ arrow keys.
@@ -50,11 +50,11 @@ Designed for developers and tech enthusiasts, **terminal-gpt** streamlines workf
 
 ### Start the interactive session:
 ```bash
-terminal-gpt
+tux-gpt
 ```
 
 <div align="center">
-  <img src="assets/img/sample.gif" alt="Demonstração de uso" width="600">
+  <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/main/assets/img/sample.gif" alt="Demonstração de uso" width="600">
 </div>
 
 
@@ -84,7 +84,7 @@ terminal-gpt
 
 ## Memory & Command History
 
-terminal-gpt now persists your conversation and command history locally in the `~/.terminal-gpt/` directory. The files created are:
+tux-gpt now persists your conversation and command history locally in the `~/.tux-gpt/` directory. The files created are:
 - `config.json`: CLI configuration, such as the default model.
 - `history.json`: stores the last 20 messages (user + assistant) to maintain context between sessions and limit token usage.
 - `input_history`: command history used by `readline` for navigation with ↑/↓ arrow keys.
@@ -92,13 +92,13 @@ terminal-gpt now persists your conversation and command history locally in the `
 Features:
 - On startup, the conversation history is automatically reloaded from `history.json`, limited to the last 20 messages to prevent token overload.
 - You can navigate previous commands using the ↑ and ↓ arrow keys at the prompt.
-- To reset the conversation or command history, simply remove the corresponding files in `~/.terminal-gpt/`.
+- To reset the conversation or command history, simply remove the corresponding files in `~/.tux-gpt/`.
 
 ---
 
 ## Customization
 
-You can configure the default model or terminal spinner settings by editing the configuration file at `~/.terminal-gpt/config.json`. Example:
+You can configure the default model or terminal spinner settings by editing the configuration file at `~/.tux-gpt/config.json`. Example:
 ```json
 {
   "model": "gpt-4o-mini"
@@ -116,15 +116,15 @@ You can configure the default model or terminal spinner settings by editing the 
 
 ## License
 
-MIT © 2025 terminal-gpt contributors
+MIT © 2025 tux-gpt contributors
 
 
 
 ---
 
-## Configuration File (~/.terminal-gpt/config.json)
+## Configuration File (~/.tux-gpt/config.json)
 
-In the first run, **terminal-gpt** will create a configuration file at `~/.terminal-gpt/config.json`. This file contains settings for the default model. You can customize the behavior of **terminal-gpt** by editing the configuration file located at `~/.terminal-gpt/config.json`. This file allows you to set the default model and other preferences.
+In the first run, **tux-gpt** will create a configuration file at `~/.tux-gpt/config.json`. This file contains settings for the default model. You can customize the behavior of **tux-gpt** by editing the configuration file located at `~/.tux-gpt/config.json`. This file allows you to set the default model and other preferences.
 
 Example config file to set the model:
 
@@ -158,4 +158,8 @@ https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#limi
 - Website: [https://fabio.automatizando.dev](https://fabio.automatizando.dev)
 - Founder of [www.vivaolinux.com.br](https://www.vivaolinux.com.br)
 - Over 25 years of experience as a developer
+
+## Official Repository
+
+- [https://github.com/fberbert/tux-gpt](https://github.com/fberbert/tux-gpt)
 

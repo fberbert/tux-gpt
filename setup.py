@@ -1,9 +1,14 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
-    name="terminal-gpt",
-    version="0.1.0",
+    name="tux-gpt",
+    version="0.1.2",
     description="An interactive terminal tool using GPT",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Fábio Berbert de Paula",
     packages=find_packages(),
     include_package_data=True,
@@ -21,7 +26,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'terminal-gpt=terminal_gpt.terminal_gpt:main'
+            'tux-gpt=tux_gpt.tux_gpt:main'
         ]
     }
 )
