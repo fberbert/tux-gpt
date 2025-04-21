@@ -142,7 +142,10 @@ def main() -> None:
             console.print("Exiting.")
             break
         # build messages for API: system + last persisted + current user
-        call_history = [system_msg] + persisted + [{"role": "user", "content": user_input}]
+        call_history = [
+            system_msg
+        ] + persisted + [{"role": "user", "content": user_input}]
+
         # call API with rich spinner/status
         try:
             with console.status("[bold green]", spinner="dots"):
