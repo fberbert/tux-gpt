@@ -121,7 +121,8 @@ def main() -> None:
             "Always search the web when user asks for something data related. "
             "For example: 'What is the weather today?' or 'Which date is today?'. "
             "You are running in a Linux terminal. "
-            "Return responses formatted in Markdown so they can be rendered in the terminal using rich."
+            "Return responses formatted in Markdown so they can be rendered in "
+            "the terminal using rich."
         )
     }
     # load persisted conversation (last MAX_HISTORY messages)
