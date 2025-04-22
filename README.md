@@ -25,6 +25,7 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
    ```bash
    git clone https://github.com/fberbert/tux-gpt.git
    cd tux-gpt
+   pip install -r requirements.txt
    pip install .
    ```
 
