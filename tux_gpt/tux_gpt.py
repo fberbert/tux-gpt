@@ -83,26 +83,42 @@ def main() -> None:
     # ensure config directory exists
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
-    # setup input line history if available
+    # setup multi-line input session with Ctrl+Enter to submit
+    session = None
     try:
-        import readline  # noqa: E402
-    except ImportError:
-        readline = None  # type: ignore[name-defined]
+        from prompt_toolkit import PromptSession
+        from prompt_toolkit.key_binding import KeyBindings
+        from prompt_toolkit.history import FileHistory
 
-    if readline:
-        try:
-            readline.read_history_file(str(INPUT_HISTORY_PATH))
-        except Exception:
-            pass
-        atexit.register(
-            lambda: readline.write_history_file(str(INPUT_HISTORY_PATH))
+        kb = KeyBindings()
+
+        # Enter should insert a newline (multi-line support)
+        @kb.add('enter')
+        def _(event):  # pylint: disable=redefined-outer-name
+            event.current_buffer.insert_text('\n')
+
+        # Use Ctrl+J to submit the message (as terminals typically cannot distinguish Ctrl+Enter)
+        @kb.add('c-j')
+        def _(event):  # pylint: disable=redefined-outer-name
+            event.app.current_buffer.validate_and_handle()
+
+        session = PromptSession(
+            multiline=True,
+            key_bindings=kb,
+            history=FileHistory(str(INPUT_HISTORY_PATH)),
+        )
+    except ImportError:
+        console.print(
+            "[red]Warning: prompt_toolkit not installed. "
+            "Falling back to single-line input. "
+            "Install prompt-toolkit for multi-line input.[/red]"
         )
 
     welcome_message = (
         "\n             Welcome to the tux-gpt!\n"
         " This is a terminal-based interactive tool using GPT.\n"
         "  Please visit https://github.com/fberbert/tux-gpt\n"
-        "               Type 'exit' to quit.\n"
+        " Type Ctrl+J to submit your input. Type 'exit' to quit.\n"
     )
     console.print(f"[bold blue]{welcome_message}[/bold blue]", justify="left")
 
@@ -141,7 +157,10 @@ def main() -> None:
 
     while True:
         try:
-            user_input = input("> ")
+            if session:
+                user_input = session.prompt("> ")
+            else:
+                user_input = input("> ")
         except (EOFError, KeyboardInterrupt):
             console.print("\nExiting.")
             break
