@@ -136,17 +136,18 @@ Example config file to set the model:
 
 ```json
 {
-  "model": "gpt-4.1-mini"
+  "model": "gpt-5-mini"
 }
 ```
 
-The default model is gpt-4.1-mini.
+The default model is gpt-5-mini.
 
 # Model Compatibility
 
 **Important:** The model you choose must support web search capability.
 Currently, only the following models support the web search tool:
 
+- gpt-5-mini
 - gpt-4.1
 - gpt-4.1-mini
 

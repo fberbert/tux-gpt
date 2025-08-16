@@ -130,8 +130,8 @@ def main() -> None:
         sys.exit(1)
 
     config = load_config()
-    model = config.get("model", "gpt-4.1-mini")
-    supported_models = ("gpt-4.1", "gpt-4.1-mini")
+    model = config.get("model", "gpt-5-mini")
+    supported_models = ("gpt-5-mini", "gpt-4.1", "gpt-4.1-mini")
     if model not in supported_models:
         console.print(
             f"[red]Model '{model}' not supported. Choose one of: "
