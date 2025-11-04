@@ -58,6 +58,7 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
 ```bash
 tux-gpt
 ```
+Pressione `Ctrl+J` para enviar sua mensagem (Enter apenas insere uma nova linha).
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/master/assets/img/sample.gif" alt="Demonstração de uso" width="600">
@@ -169,4 +170,3 @@ https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#limi
 ## Official Repository
 
 - [https://github.com/fberbert/tux-gpt](https://github.com/fberbert/tux-gpt)
-
