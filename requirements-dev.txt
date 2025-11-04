@@ -1,3 +1,5 @@
+setuptools
 pytest
 mypy
 flake8
+build

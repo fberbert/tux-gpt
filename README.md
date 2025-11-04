@@ -45,7 +45,7 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
      [Environment]::SetEnvironmentVariable('OPENAI_API_KEY', '<your_api_key>', 'User')
      ```
 
-  *Note:* On first run, tux-gpt will create the directory `~/.tux-gpt/` containing:
+  *Note:* On first run, tux-gpt will create the directory `~/.config/tux-gpt/` (or `%APPDATA%\tux-gpt\` on Windows) containing:
   - `config.json`: CLI configuration (e.g., default model);
   - `history.json`: persistence of the last 20 messages (user + assistant);
   - `input_history`: command history for navigation with ↑/↓ arrow keys.
@@ -58,7 +58,7 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
 ```bash
 tux-gpt
 ```
-Pressione `Ctrl+J` para enviar sua mensagem (Enter apenas insere uma nova linha).
+Press `Ctrl+J` to send your message (Enter only inserts a new line).
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/master/assets/img/sample.gif" alt="Demonstração de uso" width="600">
@@ -87,11 +87,28 @@ Pressione `Ctrl+J` para enviar sua mensagem (Enter apenas insere uma nova linha)
   > Summarize the top result for "machine learning trends 2025"
   ```
 
+- **Run a single prompt from the shell:**
+  ```bash
+  tux-gpt -q "What's the weather forecast for Rio das Ostras today?"
+  ```
+
+- **Request JSON output for scripting:**
+  ```bash
+  tux-gpt --json -q "Summarize the latest news about OpenAI"
+  ```
+  The response is a JSON object in the form:
+  ```json
+  {
+    "answer": "Short summary text...",
+    "sources": ["https://example.com/article", "..."]
+  }
+  ```
+
 ---
 
 ## Memory & Command History
 
-tux-gpt now persists your conversation and command history locally in the `~/.tux-gpt/` directory. The files created are:
+tux-gpt now persists your conversation and command history locally in the `~/.config/tux-gpt/` directory (or `%APPDATA%\tux-gpt\` on Windows). The files created are:
 - `config.json`: CLI configuration, such as the default model.
 - `history.json`: stores the last 20 messages (user + assistant) to maintain context between sessions and limit token usage.
 - `input_history`: command history used by `readline` for navigation with ↑/↓ arrow keys.
@@ -99,7 +116,7 @@ tux-gpt now persists your conversation and command history locally in the `~/.tu
 Features:
 - On startup, the conversation history is automatically reloaded from `history.json`, limited to the last 20 messages to prevent token overload.
 - You can navigate previous commands using the ↑ and ↓ arrow keys at the prompt.
-- To reset the conversation or command history, simply remove the corresponding files in `~/.tux-gpt/`.
+- To reset the conversation or command history, simply remove the corresponding files in that directory (`~/.config/tux-gpt/` or `%APPDATA%\tux-gpt\`).
 
 ---
 
