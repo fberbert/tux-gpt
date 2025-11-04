@@ -65,7 +65,7 @@ tux-gpt
 Press `Ctrl+J` to send your message (Enter only inserts a new line).
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/master/assets/img/sample.gif" alt="Demonstração de uso" width="600">
+  <img src="https://raw.githubusercontent.com/fberbert/tux-gpt/master/assets/img/sample-0.2.3.gif" alt="Usage demonstration" width="600">
 </div>
 
 
