@@ -1,8 +1,8 @@
 ## tux-gpt
 
-`tux-gpt` is an interactive command-line tool that leverages GPT-based language models to provide intelligent, conversational assistance directly within your terminal. It enables on-the-fly code generation, debugging help, technical explanations, and more—all without leaving the command-line environment.
+`tux-gpt` is an interactive command-line assistant (not a background AI agent) that leverages GPT-based language models to provide intelligent, conversational help directly in your terminal. It enables on-the-fly code generation, debugging support, technical explanations, and more—all without leaving the command-line environment.
 
-Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows by integrating AI assistance seamlessly into terminal sessions, making complex tasks easier and faster to accomplish via intuitive, context-aware command-line interactions.
+Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows by integrating AI assistance seamlessly into terminal sessions, making complex tasks easier and faster to accomplish via intuitive, context-aware command-line interactions. On startup the tool gathers details about the host operating system (distribution, architecture, etc.) so responses and suggested commands are tailored to your environment.
 
 ---
 
@@ -17,9 +17,13 @@ Designed for developers and tech enthusiasts, **tux-gpt** streamlines workflows 
 ## Setup and Configuration
 
 1. **Install**:
-   From PyPI:
+   From PyPI (for most platforms):
    ```bash
    pip install tux-gpt
+   ```
+   On newer Debian/Ubuntu releases where `pip` targets the system Python, prefer `pipx` to keep the install isolated:
+   ```bash
+   pipx install tux-gpt
    ```
    From source:
    ```bash
@@ -104,6 +108,12 @@ Press `Ctrl+J` to send your message (Enter only inserts a new line).
   }
   ```
 
+- **Generate and execute commands directly:**
+  ```bash
+  tux-gpt -c "create a zip archive with every jpg or png in this folder"
+  ```
+  `-c/--command` asks Tux-GPT for a shell command. The assistant returns a JSON payload with the command plus a safety flag. If `danger` is `false`, the command runs immediately and the CLI prints `Executando comando: ...`. If `danger` is `true`, the CLI shows the command and waits for confirmation before executing.
+
 ---
 
 ## Memory & Command History
@@ -122,7 +132,7 @@ Features:
 
 ## Customization
 
-You can configure the default model or terminal spinner settings by editing the configuration file at `~/.tux-gpt/config.json`. Example:
+You can configure the default model or terminal spinner settings by editing the configuration file at `~/.config/tux-gpt/config.json`. Example:
 ```json
 {
   "model": "gpt-4o-mini"
@@ -146,9 +156,9 @@ MIT © 2025 tux-gpt contributors
 
 ---
 
-## Configuration File (~/.tux-gpt/config.json)
+## Configuration File (~/.config/tux-gpt/config.json)
 
-In the first run, **tux-gpt** will create a configuration file at `~/.tux-gpt/config.json`. This file contains settings for the default model. You can customize the behavior of **tux-gpt** by editing the configuration file located at `~/.tux-gpt/config.json`. This file allows you to set the default model and other preferences.
+On the first run, **tux-gpt** will create a configuration file at `~/.config/tux-gpt/config.json` (or `%APPDATA%\tux-gpt\config.json` on Windows). This file contains settings for the default model. You can customize the behavior of **tux-gpt** by editing the configuration file located at `~/.config/tux-gpt/config.json`. This file allows you to set the default model and other preferences.
 
 Example config file to set the model:
 

@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import platform
 import sys
 from pathlib import Path
 
@@ -32,6 +33,37 @@ CONFIG_PATH: Path = CONFIG_DIR / "config.json"
 HISTORY_PATH: Path = CONFIG_DIR / "history.json"
 INPUT_HISTORY_PATH: Path = CONFIG_DIR / "input_history"
 MAX_HISTORY: int = 20
+
+def detect_system_profile() -> str:
+    """Return a short string describing the current host system."""
+    system = platform.system()
+    machine = platform.machine() or "unknown-arch"
+    release = platform.release()
+
+    if system == "Linux":
+        pretty = ""
+        os_release = Path("/etc/os-release")
+        if os_release.exists():
+            try:
+                data: dict[str, str] = {}
+                for line in os_release.read_text(encoding="utf-8").splitlines():
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        data[key.strip()] = value.strip().strip('"')
+                pretty = data.get("PRETTY_NAME", "")
+            except Exception:
+                pretty = ""
+        description = pretty or f"Linux {release}"
+    elif system == "Darwin":
+        version = platform.mac_ver()[0]
+        description = f"macOS {version or release}"
+    elif system == "Windows":
+        version = platform.version()
+        description = f"Windows {release} (build {version})"
+    else:
+        description = f"{system} {release}"
+
+    return f"{description} on {machine}"
 
 
 def write_default_config() -> None:
@@ -81,10 +113,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Interactive GPT-powered assistant for the terminal."
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "-q",
         "--query",
         help="Send a single prompt and output the response."
+    )
+    group.add_argument(
+        "-c",
+        "--command",
+        help="Ask Tux-GPT for a shell command and execute it."
     )
     parser.add_argument(
         "--json",
@@ -98,6 +136,12 @@ def main() -> None:
     """Main entry point for tux-gpt CLI."""
     args = parse_args()
     console = Console()
+
+    if args.command and args.json:
+        console.print(
+            "[red]--json cannot be combined with --command.[/red]"
+        )
+        sys.exit(2)
 
     # ensure config directory exists
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
@@ -121,20 +165,32 @@ def main() -> None:
 
     client = OpenAI(api_key=api_key)
 
+    system_profile = detect_system_profile()
+
     system_content = (
-        "You are Tux-GPT, a virtual assistant that can search the web. Always "
-        "search the web when user asks for something data related. "
-        "For example: 'What is the weather today?' or 'Which date is "
-        "today?'. You are running in a Linux terminal. Return responses "
-        "formatted in Markdown so they can be rendered in the terminal "
-        "using rich."
+        "You are Tux-GPT, a virtual assistant that can search the web. "
+        "Always search the web when user asks for something data related. "
+        "For example: 'What is the weather today?' or 'Which date is today?'. "
+        f"You are running in a Linux terminal. The host system is {system_profile}. "
+        "Tailor any shell commands or instructions to this environment. "
+        "Return responses formatted in Markdown so they can be rendered in the "
+        "terminal using rich."
     )
-    expect_json = args.json
+    base_expect_json = args.json
+    command_mode = bool(args.command)
     if args.json:
         system_content += (
             " When responding, return only a JSON object with an 'answer' "
             "field (string) summarizing the result and a 'sources' field "
             "(array of strings) listing any references used."
+        )
+    if command_mode:
+        base_expect_json = True
+        system_content += (
+            " When asked to craft a shell command you must respond with a JSON "
+            "object containing exactly two fields: 'command' (string with the "
+            "shell command to execute) and 'danger' (boolean indicating if the "
+            "command is potentially harmful). Provide no additional text."
         )
 
     system_msg: dict[str, str] = {
@@ -144,7 +200,13 @@ def main() -> None:
 
     persisted = load_history()
 
-    def process_user_input(user_input: str) -> None:
+    def process_user_input(
+        user_input: str,
+        *,
+        force_json: bool | None = None,
+        display: bool = True,
+    ) -> tuple[dict[str, object] | None, str]:
+        use_json = base_expect_json if force_json is None else force_json
         call_history: list[dict[str, str]] = (
             [system_msg]
             + persisted
@@ -160,25 +222,33 @@ def main() -> None:
                 )
         except Exception as exc:
             console.print(f"[red]Error calling OpenAI API: {exc}[/red]")
-            return
+            return None, ""
 
         answer = resp.output_text.strip()
+        parsed_json: dict[str, object] | None = None
 
-        if expect_json:
+        if use_json:
             try:
-                parsed = json.loads(answer)
-                serialized = json.dumps(parsed, ensure_ascii=False, indent=2)
-                console.print(serialized)
+                parsed_json = json.loads(answer)
+                if display:
+                    serialized = json.dumps(
+                        parsed_json,
+                        ensure_ascii=False,
+                        indent=2
+                    )
+                    console.print(serialized)
             except json.JSONDecodeError:
                 console.print(
                     "[red]Warning: response was not valid JSON. "
                     "Raw output follows.[/red]"
                 )
+                parsed_json = None
                 console.print(answer)
         else:
-            console.print()
-            console.print(Markdown(answer))
-            console.print()
+            if display:
+                console.print()
+                console.print(Markdown(answer))
+                console.print()
 
         persisted.append({"role": "user", "content": user_input})
         persisted.append({"role": "assistant", "content": answer})
@@ -187,6 +257,74 @@ def main() -> None:
             del persisted[:-MAX_HISTORY]
 
         save_history(persisted)
+        return parsed_json, answer
+
+    if args.command:
+        parsed, raw_answer = process_user_input(
+            args.command,
+            force_json=True,
+            display=False,
+        )
+        if parsed is None:
+            console.print(
+                "[red]Unable to parse command response as JSON.[/red]"
+            )
+            if raw_answer:
+                console.print(raw_answer)
+            sys.exit(1)
+
+        command_value = parsed.get("command") if isinstance(parsed, dict) else None
+        danger_value = parsed.get("danger") if isinstance(parsed, dict) else None
+
+        if not isinstance(command_value, str) or not command_value.strip():
+            console.print(
+                "[red]Response JSON missing 'command' string.[/red]"
+            )
+            sys.exit(1)
+
+        if isinstance(danger_value, bool):
+            danger_flag = danger_value
+        else:
+            console.print(
+                "[yellow]Response JSON missing boolean 'danger'. "
+                "Assuming dangerous command.[/yellow]"
+            )
+            danger_flag = True
+
+        command_value = command_value.strip()
+
+        if danger_flag:
+            console.print(
+                f"[yellow]Command flagged as dangerous:[/yellow] {command_value}"
+            )
+            try:
+                confirmation = input("Execute anyway? [y/N]: ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                console.print("\nAborted.")
+                sys.exit(1)
+            if confirmation not in ("y", "yes"):
+                console.print("Aborted.")
+                sys.exit(0)
+        else:
+            console.print(f"Executando comando: {command_value}")
+
+        import subprocess
+
+        try:
+            result = subprocess.run(
+                command_value,
+                shell=True,
+                check=True,
+                text=True,
+            )
+            if result.returncode == 0:
+                console.print("[green]Command executed successfully.[/green]")
+        except subprocess.CalledProcessError as exc:
+            console.print(
+                f"[red]Command failed with exit code {exc.returncode}.[/red]"
+            )
+            sys.exit(exc.returncode)
+        return
 
     if args.query:
         process_user_input(args.query)
