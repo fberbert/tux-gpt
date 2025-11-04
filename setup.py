@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="tux-gpt",
-    version="0.2.4",
+    version="0.2.5",
     description=(
         "An interactive terminal tool using GPT, "
         "with web search capabilities."
