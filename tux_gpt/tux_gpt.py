@@ -202,7 +202,9 @@ def main() -> None:
     if args.json:
         system_content += (
             " When responding, return only a JSON object with an 'answer' "
-            "field (string) summarizing the result and a 'sources' field "
+            "field (string) containing the most concise possible value (for "
+            "example a bare number or brief phrase, without extra prose) and "
+            "a 'sources' field "
             "(array of strings) listing any references used."
         )
     if command_mode:
