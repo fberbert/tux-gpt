@@ -11,6 +11,15 @@ from openai import OpenAI
 from rich.console import Console
 from rich.markdown import Markdown
 
+try:  # Python 3.8+
+    from importlib.metadata import PackageNotFoundError, version as pkg_version
+except ImportError:  # Python 3.7 fallback
+    try:
+        from importlib_metadata import PackageNotFoundError, version as pkg_version
+    except ImportError:  # pragma: no cover - final fallback
+        PackageNotFoundError = Exception  # type: ignore[assignment]
+        pkg_version = None  # type: ignore[assignment]
+
 
 def get_config_dir() -> Path:
     """Return the configuration directory for tux-gpt based on OS."""
@@ -33,6 +42,7 @@ CONFIG_PATH: Path = CONFIG_DIR / "config.json"
 HISTORY_PATH: Path = CONFIG_DIR / "history.json"
 INPUT_HISTORY_PATH: Path = CONFIG_DIR / "input_history"
 MAX_HISTORY: int = 20
+
 
 def detect_system_profile() -> str:
     """Return a short string describing the current host system."""
@@ -107,6 +117,17 @@ def save_history(history: list[dict[str, str]]) -> None:
     except Exception as e:
         print(f"Warning: failed to save history {HISTORY_PATH}: {e}")
 
+
+def resolve_version() -> str:
+    """Return the installed tux-gpt version."""
+    if pkg_version is None:
+        return "unknown"
+    try:
+        return pkg_version("tux-gpt")
+    except PackageNotFoundError:
+        return "unknown"
+    except Exception:
+        return "unknown"
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -361,8 +382,10 @@ def main() -> None:
             "Install prompt-toolkit for multi-line input.[/red]"
         )
 
+    cli_version = resolve_version()
+    version_suffix = f" v{cli_version}" if cli_version != "unknown" else ""
     welcome_message = (
-        "\n             Welcome to the tux-gpt!\n"
+        f"\n             Welcome to tux-gpt{version_suffix}!\n"
         " This is a terminal-based interactive tool using GPT.\n"
         "  Please visit https://github.com/fberbert/tux-gpt\n"
         " Type Ctrl+J to submit your input. Type 'exit' to quit.\n"
