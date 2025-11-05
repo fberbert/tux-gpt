@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="tux-gpt",
-    version="0.2.6",
+    version="0.2.7",
     description=(
         "An interactive terminal tool using GPT, "
         "with web search capabilities."
@@ -19,7 +19,8 @@ setup(
     install_requires=[
         'openai>=0.27.0',
         'prompt-toolkit>=3.0.0',
-        'rich>=10.0.0'
+        'rich>=10.0.0',
+        'importlib-metadata>=4.0; python_version<"3.8"',
     ],
     extras_require={
         'dev': [
